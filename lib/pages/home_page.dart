@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:health_hub/models/hospital_model.dart';
 import 'package:health_hub/widgets/hospital_list.dart';
 
 class HomePage extends StatefulWidget {
@@ -9,52 +13,56 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // int _selectedIndex = 0;
-  // static const TextStyle optionStyle =
-  //     TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  // static const List _widgetOptions = [
-  //   Text(
-  //     'index 0: Hospital',
-  //     style: optionStyle,
-  //   ),
-  //   Text(
-  //     'index 1: Labs',
-  //     style: optionStyle,
-  //   ),
-  //   Text(
-  //     'index 2: Doctor',
-  //     style: optionStyle,
-  //   )
-  // ];
+  late Future<List<Hospital>> _loadHospitals;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadHospitals = fetchHospitals();
+  }
+
+  Future<List<Hospital>> fetchHospitals() async {
+    try {
+      String jsonString =
+          await rootBundle.loadString('assets/data/hospital.json');
+      List<dynamic> jsonList = json.decode(jsonString);
+      List<Hospital> hospitals = jsonList
+          .where((json) => json != null)
+          .map((json) => Hospital.fromJson(json))
+          .toList();
+      print(hospitals.length);
+      return hospitals;
+    } catch (e) {
+      print('Error Loading Json Data: $e');
+      return [];
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F6EE),
-      appBar: AppBar(
-        title: const Text(
-          'Health Hub',
-          style: TextStyle(fontSize: 25),
+        backgroundColor: const Color(0xFFF8F6EE),
+        appBar: AppBar(
+          title: const Text(
+            'Health Hub',
+          ),
+          centerTitle: true,
         ),
-        
-        backgroundColor: const Color(0xFFC0B9A4),
-        centerTitle: true,
-      ),
-      body: Container(
-        child: HospitalList(),
-      ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   backgroundColor: Color.fromARGB(255, 92, 81, 47),
-      //   items: const [
-      //     BottomNavigationBarItem(
-      //         icon: Icon(Icons.local_hospital), label: 'Hospital'),
-      //     BottomNavigationBarItem(
-      //         icon: Icon(Icons.medical_services), label: 'Labs'),
-      //     BottomNavigationBarItem(
-      //         icon: Icon(Icons.abc_outlined), label: 'Doctor')
-      //   ],
-      //   currentIndex: _selectedIndex,
-      //   selectedItemColor: Colors.amber,
-      // ),
-    );
+        body: FutureBuilder<List<Hospital>>(
+          future: _loadHospitals,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text('Error: ${snapshot.error}'),
+              );
+            } else {
+              return const HospitalList();
+            }
+          },
+        ));
   }
 }

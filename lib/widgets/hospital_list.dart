@@ -6,61 +6,55 @@ class HospitalList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var hospitalList = [
-      ['Noor Hospital', 2.5, 'Islampura'],
-      ['Al-Aziz Hospital', 3, 'Mominpura'],
-      ['Juna Faran Hospital', 4, 'Agra Road'],
-      ['New Faran Hospital', 6, 'Daregaon ']
+      ['Green Valley Clinic', 2, 'Oak Street'],
+      ['Sunrise Medical Center', 3.5, 'Main Avenue'],
+      ['Hope Hospital', 4, 'Elm Court'],
+      ['Bright Health Clinic', 2, 'Pine Lane'],
+      ['Healing Hands Hospital', 3, 'Cedar Avenue'],
+      ['Golden Gate Clinic', 5, 'Maple Drive'],
+      ['Eagle View Hospital', 4.5, 'River Road'],
+      ['Unity Medical Center', 3, 'Sunset Boulevard'],
+      ['Rainbow Healthcare', 2.5, 'Park Avenue'],
+      ['Serene Wellness Center', 4, 'Lake Street']
     ];
     return ListView.builder(
       itemBuilder: (context, index) {
-        return InkWell(
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        HospitalProfile(hospitalName: hospitalList[index]),
-                  ));
-            },
-            child: HospitalCard(hospitalName: hospitalList[index]));
+        return HospitalTile(hospital: hospitalList[index]);
       },
       itemCount: hospitalList.length,
     );
   }
 }
 
-class HospitalCard extends StatelessWidget {
-  const HospitalCard({super.key, required this.hospitalName});
-  final List hospitalName;
-
+class HospitalTile extends StatelessWidget {
+  const HospitalTile({super.key, required this.hospital});
+  final List hospital;
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: Card(
-          // color: Colors.black,
-          elevation: 2,
-          child: Row(
-            children: [
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: CircleAvatar(
-                  backgroundImage: AssetImage('assets/images/hospital.jpg'),
-                  radius: 40,
-                ),
-              ),
-              const SizedBox(
-                width: 5,
-              ),
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(
-                  '${hospitalName[0]} | ${hospitalName[2]}',
-                  style: TextStyle(fontSize: 20),
-                ),
-                Text('Distance ${hospitalName[1]} KM'),
-              ])
-            ],
-          )),
+    return Card(
+      elevation: 4,
+      child: ListTile(
+        leading: const CircleAvatar(
+          backgroundImage: AssetImage('assets/images/hospital.jpg'),
+        ),
+        title: Text(hospital[0]),
+        subtitle: Text('${hospital[2]} | Distance: ${hospital[1]} KM'),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+                onPressed: () {}, icon: const Icon(Icons.directions_outlined)),
+            IconButton(onPressed: () {}, icon: const Icon(Icons.call_outlined))
+          ],
+        ),
+        onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HospitalProfile(hospital: hospital),
+              ));
+        },
+      ),
     );
   }
 }
